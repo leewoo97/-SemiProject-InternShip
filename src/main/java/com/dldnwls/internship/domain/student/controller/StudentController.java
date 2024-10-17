@@ -1,10 +1,11 @@
 package com.dldnwls.internship.domain.student.controller;
 
-import com.dldnwls.internship.domain.student.dto.request.CreateStudentDTO;
-import com.dldnwls.internship.domain.student.dto.request.UpdateStudentDTO;
-import com.dldnwls.internship.domain.student.dto.response.StudentDTO;
+import com.dldnwls.internship.domain.student.dto.request.student.CreateStudentRequest;
+import com.dldnwls.internship.domain.student.dto.request.student.UpdateStudentRequest;
+import com.dldnwls.internship.domain.student.dto.response.student.*;
 import com.dldnwls.internship.domain.student.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.Delete;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +20,8 @@ public class StudentController {
     private final StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<StudentDTO> createStudent(@RequestBody CreateStudentDTO createStudentDTO){
-        StudentDTO createdStudent = studentService.createStudent(createStudentDTO);
+    public ResponseEntity<CreateStudentResponse> createStudent(@RequestBody CreateStudentRequest createStudentRequest){
+        CreateStudentResponse createdStudent = studentService.createStudent(createStudentRequest);
         return ResponseEntity.ok(createdStudent);
     }
 
@@ -31,15 +32,33 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<StudentDTO>> getStudents(@RequestParam(required = false) String name, @RequestParam(required = false) String major, @RequestParam(required = false)Set<String> techStackNames){
-        List<StudentDTO> students = studentService.getStudents(name, major, techStackNames);
+    public ResponseEntity<List<StudentDTO>> getStudentsByFilter(@RequestParam(required = false) String name, @RequestParam(required = false) String major, @RequestParam(required = false)Set<String> techStackNames){
+        List<StudentDTO> students = studentService.getStudentsByFilter(name, major, techStackNames);
         return ResponseEntity.ok(students);
     }
 
     @PutMapping("/{studentId}")
-    public ResponseEntity<StudentDTO> updateStudent(@PathVariable Long studentId, @RequestBody UpdateStudentDTO updateStudentDTO){
-        StudentDTO studentDTO = studentService.updateStudent(studentId, updateStudentDTO);
-        return ResponseEntity.ok(studentDTO);
+    public ResponseEntity<UpdateStudentResponse> updateStudent(@PathVariable Long studentId, @RequestBody UpdateStudentRequest updateStudentRequest){
+        UpdateStudentResponse updateStudentResponse = studentService.updateStudent(studentId, updateStudentRequest);
+        return ResponseEntity.ok(updateStudentResponse);
+    }
+
+    @DeleteMapping("/{studentId}")
+    public ResponseEntity<DeleteStudentResponse> deleteStudent(@PathVariable Long studentId){
+        DeleteStudentResponse deleteStudentResponse = studentService.deleteStudent(studentId);
+        return ResponseEntity.ok(deleteStudentResponse);
+    }
+
+    @PostMapping("/{studentId}/techstacks")
+    public ResponseEntity<AddTechstacksResponse> addTechstacks(@PathVariable Long studentId, @RequestParam Set<String> techStackNames){
+        AddTechstacksResponse addTechstacksResponse = studentService.addTechstack(studentId, techStackNames);
+        return ResponseEntity.ok(addTechstacksResponse);
+    }
+
+    @DeleteMapping("/{studentId}/techstacks/{techstackId}")
+    public ResponseEntity<DeleteTechstackResponse> deleteTechstack(@PathVariable Long studentId, @PathVariable Long techstackId){
+        DeleteTechstackResponse deleteTechstackResponse = studentService.deleteTechstack(studentId, techstackId);
+        return ResponseEntity.ok(deleteTechstackResponse);
     }
 
 

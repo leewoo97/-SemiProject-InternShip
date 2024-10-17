@@ -1,15 +1,16 @@
 package com.dldnwls.internship.domain.student.service.impl;
 
 import com.dldnwls.internship.domain.student.Student;
-import com.dldnwls.internship.domain.student.dto.request.CreateStudentDTO;
-import com.dldnwls.internship.domain.student.dto.request.UpdateStudentDTO;
-import com.dldnwls.internship.domain.student.dto.response.StudentDTO;
+import com.dldnwls.internship.domain.student.dto.request.student.CreateStudentRequest;
+import com.dldnwls.internship.domain.student.dto.request.student.UpdateStudentRequest;
+import com.dldnwls.internship.domain.student.dto.response.student.*;
 import com.dldnwls.internship.domain.student.repository.StudentRepository;
 import com.dldnwls.internship.domain.student.service.StudentService;
 import com.dldnwls.internship.domain.techstack.Techstack;
 import com.dldnwls.internship.domain.techstack.dto.TechStackDTO;
 import com.dldnwls.internship.domain.techstack.repository.TechstackRepository;
 import com.dldnwls.internship.global.exception.student.StudentNotFoundException;
+import com.dldnwls.internship.global.exception.techstack.TechstackNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,21 +29,21 @@ public class StudentServiceImpl implements StudentService {
     private final TechstackRepository techstackRepository;
 
     @Override
-    public StudentDTO createStudent(CreateStudentDTO createStudentDTO) {
+    public CreateStudentResponse createStudent(CreateStudentRequest createStudentRequest) {
 
         Student student = Student.builder()
-                .name(createStudentDTO.getName())
-                .email(createStudentDTO.getEmail())
-                .phone(createStudentDTO.getPhone())
-                .university(createStudentDTO.getUniversity())
-                .major(createStudentDTO.getMajor())
-                .resume(createStudentDTO.getResume())
-                .techStacks(processTechStacks(createStudentDTO.getTechStackNames()))
+                .name(createStudentRequest.getName())
+                .email(createStudentRequest.getEmail())
+                .phone(createStudentRequest.getPhone())
+                .university(createStudentRequest.getUniversity())
+                .major(createStudentRequest.getMajor())
+                .resume(createStudentRequest.getResume())
+                .techStacks(processTechStacks(createStudentRequest.getTechStackNames()))
                 .build();
 
         Student savedStudent = studentRepository.save(student);
 
-        return convertToStudentDTO(savedStudent);
+        return convertToCreateStudentResponse(savedStudent);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentDTO> getStudents(String name, String major, Set<String> techStackNames) {
+    public List<StudentDTO> getStudentsByFilter(String name, String major, Set<String> techStackNames) {
         List<Student> students = studentRepository.findStudentsByFilter(name, major, techStackNames);
 
         return students.stream()
@@ -62,20 +63,49 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDTO updateStudent(Long studentId, UpdateStudentDTO updateStudentDTO) {
+    public UpdateStudentResponse updateStudent(Long studentId, UpdateStudentRequest updateStudentRequest) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(()->new StudentNotFoundException("[Update] Student not found with id: " + studentId));
 
-        student.updateName(updateStudentDTO.getName())
-               .updateEmail(updateStudentDTO.getEmail())
-               .updatePhone(updateStudentDTO.getPhone())
-               .updateMajor(updateStudentDTO.getMajor())
-               .updateUniversity(updateStudentDTO.getUniversity())
-               .updateResume(updateStudentDTO.getResume())
-               .updateTechStacks(processTechStacks(updateStudentDTO.getTechStackNames()));
+        student.updateName(updateStudentRequest.getName())
+               .updateEmail(updateStudentRequest.getEmail())
+               .updatePhone(updateStudentRequest.getPhone())
+               .updateMajor(updateStudentRequest.getMajor())
+               .updateUniversity(updateStudentRequest.getUniversity())
+               .updateResume(updateStudentRequest.getResume())
+               .updateTechStacks(processTechStacks(updateStudentRequest.getTechStackNames()));
 
-        studentRepository.save(student);
-        return convertToStudentDTO(student);
+        return convertToUpdateStudentResponse(student);
+    }
+
+    @Override
+    public DeleteStudentResponse deleteStudent(Long studentId) {
+        Student student = studentRepository.findById(studentId).orElseThrow(()-> new StudentNotFoundException("[Delete] Student not found with id : " + studentId));
+        studentRepository.delete(student);
+        return convertToDeleteStudentResponse(student);
+    }
+
+    @Override
+    public AddTechstacksResponse addTechstack(Long studentId, Set<String> techStackNames) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new StudentNotFoundException("[AddTechstacks] Student not found with id : " + studentId));
+
+        Set<Techstack> newTechStacks = processTechStacks(techStackNames);
+        student.getTechStacks().addAll(newTechStacks);
+
+        return convertToAddTechstacksResponse(student);
+    }
+
+    @Override
+    public DeleteTechstackResponse deleteTechstack(Long studentId, Long techstackId) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new StudentNotFoundException("[DeleteTechstack] Student not found with id : " + studentId));
+
+        Techstack techstack = student.getTechStacks().stream()
+                .filter(ts -> ts.getId().equals(techstackId))
+                .findFirst()
+                .orElseThrow(() -> new TechstackNotFoundException("[DeleteTechstack] Techstack not found with id: " + techstackId));
+
+        student.removeTechStack(techstack);
+        return convertToDeleteTechstackResponse(student);
     }
 
     //---------------------------------------------------------------------------------------------------------------------------
@@ -113,6 +143,80 @@ private Set<Techstack> processTechStacks(Set<String> techStackNames) {
                         .collect(Collectors.toSet()))
                 .build();
     }
+
+    private CreateStudentResponse convertToCreateStudentResponse(Student student){
+        return CreateStudentResponse.builder()
+                .name(student.getName())
+                .email(student.getEmail())
+                .phone(student.getPhone())
+                .major(student.getMajor())
+                .phone(student.getPhone())
+                .resume(student.getResume())
+                .university(student.getUniversity())
+                .techStacks(student.getTechStacks().stream()
+                        .map(this::convertToTechStackDTO)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    private UpdateStudentResponse convertToUpdateStudentResponse(Student student){
+        return UpdateStudentResponse.builder()
+                .name(student.getName())
+                .email(student.getEmail())
+                .phone(student.getPhone())
+                .major(student.getMajor())
+                .phone(student.getPhone())
+                .resume(student.getResume())
+                .university(student.getUniversity())
+                .techStacks(student.getTechStacks().stream()
+                        .map(this::convertToTechStackDTO)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    private DeleteStudentResponse convertToDeleteStudentResponse(Student student){
+        return DeleteStudentResponse.builder()
+                .name(student.getName())
+                .phone(student.getPhone())
+                .email(student.getEmail())
+                .major(student.getMajor())
+                .university(student.getUniversity())
+                .resume(student.getResume())
+                .createdAt(student.getCreatedAt())
+                .build();
+    }
+
+    private AddTechstacksResponse convertToAddTechstacksResponse(Student student){
+        return AddTechstacksResponse.builder()
+                .name(student.getName())
+                .phone(student.getPhone())
+                .email(student.getEmail())
+                .major(student.getMajor())
+                .university(student.getUniversity())
+                .resume(student.getResume())
+                .createdAt(student.getCreatedAt())
+                .techStacks(student.getTechStacks().stream()
+                        .map(this::convertToTechStackDTO)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    private DeleteTechstackResponse convertToDeleteTechstackResponse(Student student){
+        return DeleteTechstackResponse.builder()
+                .name(student.getName())
+                .phone(student.getPhone())
+                .email(student.getEmail())
+                .major(student.getMajor())
+                .university(student.getUniversity())
+                .resume(student.getResume())
+                .createdAt(student.getCreatedAt())
+                .techStacks(student.getTechStacks().stream()
+                        .map(this::convertToTechStackDTO)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+
 
     private TechStackDTO convertToTechStackDTO(Techstack techstack) {
         return TechStackDTO.builder()

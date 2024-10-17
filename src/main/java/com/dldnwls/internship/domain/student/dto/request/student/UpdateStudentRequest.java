@@ -1,4 +1,4 @@
-package com.dldnwls.internship.domain.student.dto.request;
+package com.dldnwls.internship.domain.student.dto.request.student;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class UpdateStudentDTO {
+public class UpdateStudentRequest {
 
     private String name; //학생 이름
 

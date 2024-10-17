@@ -86,6 +86,12 @@ public class Student {
         this.techStacks = techStacks;
         return this;
     }
+
+    public Student removeTechStack(Techstack techstack) {
+        this.techStacks.remove(techstack);
+        return this;
+    }
+
 //    @Builder
 //    public Student(String name, String email, String phone, String university, String major, String resume, Set<Techstack> techStacks) {
 //        this.name = name;

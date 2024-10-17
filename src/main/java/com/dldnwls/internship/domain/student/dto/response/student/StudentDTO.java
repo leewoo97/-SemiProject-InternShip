@@ -1,7 +1,5 @@
-package com.dldnwls.internship.domain.student.dto.response;
+package com.dldnwls.internship.domain.student.dto.response.student;
 
-import com.dldnwls.internship.domain.student.Student;
-import com.dldnwls.internship.domain.techstack.Techstack;
 import com.dldnwls.internship.domain.techstack.dto.TechStackDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 
