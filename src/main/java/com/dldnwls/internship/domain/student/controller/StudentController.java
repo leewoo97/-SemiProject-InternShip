@@ -4,13 +4,18 @@ import com.dldnwls.internship.domain.student.dto.request.student.CreateStudentRe
 import com.dldnwls.internship.domain.student.dto.request.student.UpdateStudentRequest;
 import com.dldnwls.internship.domain.student.dto.response.student.*;
 import com.dldnwls.internship.domain.student.service.StudentService;
+import com.dldnwls.internship.storage.file.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.sql.Delete;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,11 +23,22 @@ import java.util.Set;
 public class StudentController {
 
     private final StudentService studentService;
+    private final FileUploadService fileUploadService;
 
     @PostMapping
     public ResponseEntity<CreateStudentResponse> createStudent(@RequestBody CreateStudentRequest createStudentRequest){
         CreateStudentResponse createdStudent = studentService.createStudent(createStudentRequest);
         return ResponseEntity.ok(createdStudent);
+    }
+
+    @PostMapping(value = "/uploadResume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
+        try {
+            CompletableFuture<String> uploadFuture = fileUploadService.uploadFile(file);
+            return ResponseEntity.ok("File upload in progress.");
+        }catch(Exception e){
+            return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{studentId}")
