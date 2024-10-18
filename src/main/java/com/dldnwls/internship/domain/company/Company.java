@@ -35,4 +35,29 @@ public class Company {
 
     @Column(name = "created_at",nullable = false)
     LocalDateTime createdAt; //가입 날짜
+
+    public Company updateName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Company updateIndustry(String industry) {
+        this.industry = industry;
+        return this;
+    }
+
+    public Company updateLocation(String location) {
+        this.location = location;
+        return this;
+    }
+
+    public Company updateWebsite(String website) {
+        this.website = website;
+        return this;
+    }
+
+    public Company updateDescription(String description) {
+        this.description = description;
+        return this;
+    }
 }
