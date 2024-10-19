@@ -31,10 +31,10 @@ public class StudentController {
         return ResponseEntity.ok(createdStudent);
     }
 
-    @PostMapping(value = "/uploadResume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/uploadResume/{studentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<?> uploadResume(@PathVariable Long studentId ,@RequestParam("file") MultipartFile file) {
         try {
-            CompletableFuture<String> uploadFuture = fileUploadService.uploadFile(file);
+            CompletableFuture<String> uploadFuture = fileUploadService.uploadFile(studentId, file);
             return ResponseEntity.ok("File upload in progress.");
         }catch(Exception e){
             return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
