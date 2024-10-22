@@ -5,18 +5,26 @@ import com.dldnwls.internship.domain.student.dto.request.student.UpdateStudentRe
 import com.dldnwls.internship.domain.student.dto.response.student.*;
 import com.dldnwls.internship.domain.student.service.StudentService;
 import com.dldnwls.internship.storage.file.service.FileUploadService;
+import com.dldnwls.internship.storage.file.vo.FileUploadRequestVo;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.sql.Delete;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/students")
@@ -31,10 +39,23 @@ public class StudentController {
         return ResponseEntity.ok(createdStudent);
     }
 
-    @PostMapping(value = "/uploadResume/{studentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity<?> uploadResume(@PathVariable Long studentId ,@RequestParam("file") MultipartFile file) {
-        try {
-            CompletableFuture<String> uploadFuture = fileUploadService.uploadFile(studentId, file);
+
+    @Operation(summary = "이력서 저장(비동기 방식)", description = "ThreadPool을 활용해 비동기 방식으로 이력서를 저장합니다.")
+    @PostMapping(value = "/uploadResume/async/{studentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<String> uploadResumeByAsync(@PathVariable Long studentId , @RequestParam("file") MultipartFile file) throws IOException {
+        try{
+            fileUploadService.uploadFileByAsync(studentId,file.getBytes(),file.getOriginalFilename());  // 비동기로 파일 저장
+            return ResponseEntity.ok("File upload in progress.");
+        }catch(Exception e){
+            return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "이력서 저장(동기 방식)", description = "동기 방식으로 이력서를 저장합니다.")
+    @PostMapping(value = "/uploadResume/synch/{studentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<String> uploadResumeBySynch(@PathVariable Long studentId, @RequestParam("file") MultipartFile file){
+        try{
+            fileUploadService.uploadFileBySynch(studentId,file);
             return ResponseEntity.ok("File upload in progress.");
         }catch(Exception e){
             return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
