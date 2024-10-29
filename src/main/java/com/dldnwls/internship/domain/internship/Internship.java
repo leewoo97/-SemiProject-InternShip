@@ -3,14 +3,16 @@ package com.dldnwls.internship.domain.internship;
 import com.dldnwls.internship.domain.company.Company;
 import com.dldnwls.internship.domain.techstack.Techstack;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Internship {
@@ -49,10 +51,50 @@ public class Internship {
             joinColumns = @JoinColumn(name = "internship_id"),
             inverseJoinColumns = @JoinColumn(name = "techstack_id")
     )
-    private Set<Techstack> requiredSkills=new HashSet<>(); //필수 기술 스택(FK, TechStack)
+    private Set<Techstack> requiredSkills = new HashSet<>(); //필수 기술 스택(FK, TechStack)
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now(); // 엔티티 생성 시 자동으로 등록 날짜 설정
+    }
+
+    public Internship updateTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public Internship updateDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public Internship updateSalary(BigDecimal salary) {
+        this.salary = salary;
+        return this;
+    }
+
+    public Internship updateStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+        return this;
+    }
+
+    public Internship updateEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+        return this;
+    }
+
+    public Internship updateCompany(Company company) {
+        this.company = company;
+        return this;
+    }
+
+    public Internship updateRequiredSkills(Set<Techstack> requiredSkills) {
+        this.requiredSkills = requiredSkills;
+        return this;
+    }
+
+    public Internship removeTechStack(Techstack techstack) {
+        this.requiredSkills.remove(techstack);
+        return this;
     }
 }

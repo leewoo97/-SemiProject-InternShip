@@ -1,5 +1,6 @@
 package com.dldnwls.internship.domain.company;
 
+import com.dldnwls.internship.domain.internship.Internship;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -35,6 +38,9 @@ public class Company {
 
     @Column(name = "created_at",nullable = false)
     LocalDateTime createdAt; //가입 날짜
+
+    @OneToMany(mappedBy = "company")
+    List<Internship> internship = new ArrayList<>();
 
     public Company updateName(String name) {
         this.name = name;

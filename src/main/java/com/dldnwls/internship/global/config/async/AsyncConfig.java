@@ -19,8 +19,8 @@ public class AsyncConfig implements AsyncConfigurer {
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10); //기본 스레드 개수
-        executor.setMaxPoolSize(20); //최대 스레드 개수
-        executor.setQueueCapacity(1000); //대기 큐 사이즈
+//        executor.setMaxPoolSize(20); //최대 스레드 개수
+//        executor.setQueueCapacity(1000); //대기 큐 사이즈
         executor.setThreadNamePrefix("FileUpload-");
         executor.initialize();
         return executor;

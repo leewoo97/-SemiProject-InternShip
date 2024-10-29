@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Set;
 
-import com.dldnwls.internship.domain.student.QStudent;
 import com.dldnwls.internship.domain.techstack.QTechstack;
 
 @RequiredArgsConstructor
@@ -43,7 +42,6 @@ public class StudentRepositoryCustomImpl implements StudentRepositoryCustom{
 
     private BooleanExpression hasTechStacks(Set<String> techStacks) {
         QStudent student = QStudent.student;
-        QTechstack techStack = QTechstack.techstack;
         return techStacks != null && !techStacks.isEmpty() ? student.techStacks.any().name.in(techStacks) : null;
     }
 }

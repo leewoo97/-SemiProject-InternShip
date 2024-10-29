@@ -1,6 +1,6 @@
 package com.dldnwls.internship.domain.student.dto.response.student;
 
-import com.dldnwls.internship.domain.techstack.dto.TechStackDTO;
+import com.dldnwls.internship.domain.techstack.dto.TechstackDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,5 +28,5 @@ public class AddTechstacksResponse {
 
     private LocalDateTime createdAt; //가입날짜
 
-    private Set<TechStackDTO> techStacks; // DTO로 변경
+    private Set<TechstackDTO> techStacks; // DTO로 변경
 }

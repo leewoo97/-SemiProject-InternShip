@@ -7,7 +7,7 @@ import com.dldnwls.internship.domain.student.dto.response.student.*;
 import com.dldnwls.internship.domain.student.repository.StudentRepository;
 import com.dldnwls.internship.domain.student.service.StudentService;
 import com.dldnwls.internship.domain.techstack.Techstack;
-import com.dldnwls.internship.domain.techstack.dto.TechStackDTO;
+import com.dldnwls.internship.domain.techstack.dto.TechstackDTO;
 import com.dldnwls.internship.domain.techstack.repository.TechstackRepository;
 import com.dldnwls.internship.global.exception.student.StudentNotFoundException;
 import com.dldnwls.internship.global.exception.techstack.TechstackNotFoundException;
@@ -218,8 +218,8 @@ private Set<Techstack> processTechStacks(Set<String> techStackNames) {
 
 
 
-    private TechStackDTO convertToTechStackDTO(Techstack techstack) {
-        return TechStackDTO.builder()
+    private TechstackDTO convertToTechStackDTO(Techstack techstack) {
+        return TechstackDTO.builder()
                 .id(techstack.getId())
                 .name(techstack.getName())
                 .build();

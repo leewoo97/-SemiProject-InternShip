@@ -5,7 +5,6 @@ import com.dldnwls.internship.domain.student.dto.request.student.UpdateStudentRe
 import com.dldnwls.internship.domain.student.dto.response.student.*;
 import com.dldnwls.internship.domain.student.service.StudentService;
 import com.dldnwls.internship.storage.file.service.FileUploadService;
-import com.dldnwls.internship.storage.file.vo.FileUploadRequestVo;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
