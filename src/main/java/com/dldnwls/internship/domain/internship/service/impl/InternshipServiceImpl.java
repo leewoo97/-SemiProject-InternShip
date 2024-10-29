@@ -191,6 +191,7 @@ public class InternshipServiceImpl implements InternshipService {
 
     public GetInternshipResponse convertToGetInternshipResponse(Internship internship){
         return GetInternshipResponse.builder()
+                .title(internship.getTitle())
                 .startDate(internship.getStartDate())
                 .endDate(internship.getEndDate())
                 .description(internship.getDescription())

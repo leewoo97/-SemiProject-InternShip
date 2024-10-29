@@ -97,5 +97,12 @@ public class StudentController {
         return ResponseEntity.ok(deleteTechstackResponse);
     }
 
+    //인턴쉽 추천 API
+    @GetMapping("/{studentId}/recommendations")
+    public ResponseEntity<List<RecommendInternshipResponse>> recommendInternship(@PathVariable Long studentId){
+        List<RecommendInternshipResponse> recommendList = studentService.recommendInternships(studentId);
+        return ResponseEntity.ok(recommendList);
+    }
+
 
 }

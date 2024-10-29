@@ -21,4 +21,6 @@ public interface StudentService {
     public AddTechstacksResponse addTechstack(Long studentId, Set<String> techStackNames);
 
     public DeleteTechstackResponse deleteTechstack(Long studentId, Long techstackId);
+
+    public List<RecommendInternshipResponse> recommendInternships(Long studentId);
 }

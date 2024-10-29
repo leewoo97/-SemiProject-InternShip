@@ -1,5 +1,8 @@
 package com.dldnwls.internship.domain.student.service.impl;
 
+import com.dldnwls.internship.domain.company.Company;
+import com.dldnwls.internship.domain.company.dto.response.CompanyDTO;
+import com.dldnwls.internship.domain.internship.Internship;
 import com.dldnwls.internship.domain.student.Student;
 import com.dldnwls.internship.domain.student.dto.request.student.CreateStudentRequest;
 import com.dldnwls.internship.domain.student.dto.request.student.UpdateStudentRequest;
@@ -108,26 +111,47 @@ public class StudentServiceImpl implements StudentService {
         return convertToDeleteTechstackResponse(student);
     }
 
-    //---------------------------------------------------------------------------------------------------------------------------
-// TechStack 처리 메서드 (이전과 동일)
-private Set<Techstack> processTechStacks(Set<String> techStackNames) {
-    Set<Techstack> existingTechStacks = new HashSet<>(techstackRepository.findByNameIn(techStackNames));
+    @Override
+    public List<RecommendInternshipResponse> recommendInternships(Long studentId) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new StudentNotFoundException("[Recommend] Student not found with id : " + studentId));
+        Set<Techstack> techstacks = student.getTechStacks();
 
-    Set<String> existingNames = existingTechStacks.stream()
-            .map(Techstack::getName)
-            .collect(Collectors.toSet());
+        List<Internship> recommendList = recommendInternshipsRelatedTechstack(techstacks);
 
-    Set<Techstack> newTechStacks = techStackNames.stream()
-            .filter(name -> !existingNames.contains(name))
-            .map(name -> Techstack.builder().name(name).build())
-            .collect(Collectors.toSet());
-
-    if (!newTechStacks.isEmpty()) {
-        existingTechStacks.addAll(techstackRepository.saveAll(newTechStacks));
+        return recommendList.stream()
+                .map(this::convertToRecommendInternshipResponse)
+                .toList();
     }
 
-    return existingTechStacks;
-}
+    //---------------------------------------------------------------------------------------------------------------------------
+    // TechStack 처리 메서드 (이전과 동일)
+    private Set<Techstack> processTechStacks(Set<String> techStackNames) {
+        Set<Techstack> existingTechStacks = new HashSet<>(techstackRepository.findByNameIn(techStackNames));
+
+        Set<String> existingNames = existingTechStacks.stream()
+                .map(Techstack::getName)
+                .collect(Collectors.toSet());
+
+        Set<Techstack> newTechStacks = techStackNames.stream()
+                .filter(name -> !existingNames.contains(name))
+                .map(name -> Techstack.builder().name(name).build())
+                .collect(Collectors.toSet());
+
+        if (!newTechStacks.isEmpty()) {
+            existingTechStacks.addAll(techstackRepository.saveAll(newTechStacks));
+        }
+
+        return existingTechStacks;
+    }
+
+    private List<Internship> recommendInternshipsRelatedTechstack(Set<Techstack> techstacks){
+
+        return techstacks.stream()
+                .filter(techstack -> techstackRepository.findById(techstack.getId()).isPresent())
+                .flatMap(techstack -> techstack.getInternships().stream())
+                .toList();
+    }
+
 
     private StudentDTO convertToStudentDTO(Student student) {
         return StudentDTO.builder()
@@ -216,7 +240,36 @@ private Set<Techstack> processTechStacks(Set<String> techStackNames) {
                 .build();
     }
 
+    private RecommendInternshipResponse convertToRecommendInternshipResponse(Internship internship){
+        return RecommendInternshipResponse.builder()
+                .title(internship.getTitle())
+                .startDate(internship.getStartDate())
+                .endDate(internship.getEndDate())
+                .description(internship.getDescription())
+                .location(internship.getLocation())
+                .salary(internship.getSalary())
+                .company(convertToCompanyDTO(internship.getCompany()))
+                .requiredSkills(internship.getRequiredSkills().stream()
+                        .map(this::convertToTechstackDTO)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
 
+    public CompanyDTO convertToCompanyDTO(Company company){
+        return CompanyDTO.builder()
+                .name(company.getName())
+                .location(company.getLocation())
+                .industry(company.getIndustry())
+                .description(company.getDescription())
+                .website(company.getWebsite())
+                .build();
+    }
+
+    public TechstackDTO convertToTechstackDTO(Techstack techstack){
+        return TechstackDTO.builder()
+                .name(techstack.getName())
+                .build();
+    }
 
     private TechstackDTO convertToTechStackDTO(Techstack techstack) {
         return TechstackDTO.builder()
